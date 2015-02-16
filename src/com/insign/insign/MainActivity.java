@@ -65,14 +65,22 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 				drawView.invalidate();
 				break;
 			case MotionEvent.ACTION_UP:
+				if (coords.size() < 10)
+					break;
 				Point2D[] xtArr = xt.toArray(new Point2D[xt.size()]);
-				long start = System.currentTimeMillis();
-				Spline spline = Interpolation.SmoothingSpline(xtArr, 0.5);
+				Point2D[] ytArr = yt.toArray(new Point2D[yt.size()]);
+ 				long start = System.currentTimeMillis();
+				Spline splineX = Interpolation.SmoothingSpline(xtArr, 0.5);
+				Spline splineY = Interpolation.SmoothingSpline(ytArr, 0.5);
 				long execTime = System.currentTimeMillis() - start;
 
+				Spline.isContinuous(splineX, 1e-10);
+				Spline.isContinuous(splineY, 1e-10);
+
+				drawSpline(splineX, splineY, 1);
 				paint.setColor(Color.RED);
 				paint.setTextSize(70);
-				drawView.getCanvas().drawColor(Color.WHITE);
+				//drawView.getCanvas().drawColor(Color.WHITE);
 				drawView.getCanvas().drawText(Double.toString(execTime), 100.0F, 100.0F, paint);
 				drawView.invalidate();
 				break;
@@ -102,6 +110,23 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 		xt.add(new Point2D(t, x));
 		yt.add(new Point2D(t, y));
 		textView.append(System.lineSeparator() + "t=" + t + "(" + x + "; " + y + ")");
+	}
+
+	private void drawSpline(Spline x, Spline y, double step) {
+		double t0 = x.getLeftBound();
+		double tMax = x.getRightBound();
+		double t1 = 0, t2 = 0;
+		double segmentSize = tMax - t0;
+		int segmentCount = (int)Math.ceil(segmentSize / step);
+		double actualStep = segmentSize / segmentCount;
+
+		paint.setColor(Color.RED);
+		paint.setStrokeWidth(3);
+		for (int segment = 0; segment < segmentCount; segment++) {
+			t1 = t0 + segment * actualStep;
+			t2 = t1 + actualStep;
+			drawView.getCanvas().drawLine((float)x.valueIn(t1), (float)y.valueIn(t1), (float)x.valueIn(t2), (float)y.valueIn(t2), paint);
+		}
 	}
 
 }
