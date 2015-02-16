@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/view"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Large Text"
+                android:id="@+id/textView"
+                android:scrollbars="vertical"
+                />
+        <com.insign.insign.DrawView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/canvas"
+                android:orientation="vertical">
+
+        </com.insign.insign.DrawView>
+</RelativeLayout>

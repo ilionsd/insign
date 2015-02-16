@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/insign.iml" filepath="$PROJECT_DIR$/insign.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../projectLinearAlgebra/projectLinearAlgebra.iml" filepath="$PROJECT_DIR$/../projectLinearAlgebra/projectLinearAlgebra.iml" />
     </modules>
   </component>
 </project>
