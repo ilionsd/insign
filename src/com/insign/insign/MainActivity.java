@@ -94,9 +94,11 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 
 		paint.setColor(color);
 		paint.setStrokeWidth(3);
+
+		t2 = tMin;
 		for (int segment = 0; segment < segmentCount; segment++) {
-			t1 = tMin + segment * actualStep;
-			t2 = t1 + actualStep;
+			t1 = tMin + actualStep * segment;
+			t2 = tMin + actualStep * (segment + 1);
 			Point2D t1Value = curve.valueIn(t1);
 			Point2D t2Value = curve.valueIn(t2);
 			drawView.getCanvas().drawLine((float)t1Value.getX(), (float)t1Value.getY(), (float)t2Value.getX(), (float)t2Value.getY(), paint);
