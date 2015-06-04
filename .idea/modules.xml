@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../common/common.iml" filepath="$PROJECT_DIR$/../common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../dinamic-curve-comparison/dinamic-curve-comparison.iml" filepath="$PROJECT_DIR$/../dinamic-curve-comparison/dinamic-curve-comparison.iml" />
       <module fileurl="file://$PROJECT_DIR$/insign.iml" filepath="$PROJECT_DIR$/insign.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../projectLinearAlgebra/projectLinearAlgebra.iml" filepath="$PROJECT_DIR$/../projectLinearAlgebra/projectLinearAlgebra.iml" />
     </modules>
   </component>
 </project>

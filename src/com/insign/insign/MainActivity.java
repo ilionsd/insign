@@ -10,16 +10,21 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import android.widget.TextView;
-import com.insign.common.Entry;
-import com.insign.common.EntryWrapper;
-import com.insign.common.function.differentialgeometry.NaturalSplineParametricCurve;
+import com.insign.dinamic_curves.points.SignaturePoint;
+import com.insign.utils.Entry;
+import com.insign.utils.EntryWrapper;
+import com.insign.common.function.differentialgeometry.CubicSplineParametricCurve;
+import com.insign.common.function.differentialgeometry.NaturalCubicSplineParametricCurve;
 import com.insign.common.function.differentialgeometry.ParametricCurve;
-import com.insign.common.function.differentialgeometry.SplineParametricCurve;
 import com.insign.common.function.interpolation.Interpolation;
 import com.insign.common.function.Point2D;
 
+import com.insign.dinamic_curves.Signature;
+import com.insign.dinamic_curves.SignatureUtils;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ilion on 06.02.2015.
@@ -105,6 +110,15 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 		}
 	}
 
+	private void drawSkeleton(Signature signature, int color) {
+		paint.setColor(color);
+		paint.setStrokeWidth(7);
+
+		for (SignaturePoint point: signature.getSkeleton()) {
+			drawView.getCanvas().drawPoint((float)point.getValue().getX(), (float)point.getValue().getY(), paint);
+		}
+	}
+
 	private void moveEventActionMove() {
 		int lastIndex = points.size() - 1;
 		float startX = (float)points.get(lastIndex - 1).getValue().getX();
@@ -119,17 +133,27 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 
 	private void moveEventActionUp() {
 		long start = System.currentTimeMillis();
-		SplineParametricCurve curve = Interpolation.ParametricCurves.bySmoothingSpline(points, 0.5);
-		NaturalSplineParametricCurve naturalCurve = NaturalSplineParametricCurve.fromCurve(curve);
+		CubicSplineParametricCurve curve = Interpolation.ParametricCurves.bySmoothingSpline(points, 0.5);
+		NaturalCubicSplineParametricCurve naturalCurve = NaturalCubicSplineParametricCurve.fromCurve(curve);
+		Signature signature = SignatureUtils.createFromCurve(naturalCurve);
 		long execTime = System.currentTimeMillis() - start;
 
 		drawCurve(curve, 1, Color.RED);
 		drawCurve(naturalCurve, 1, Color.GREEN);
+		drawSkeleton(signature, Color.BLUE);
 		paint.setColor(Color.RED);
 		paint.setTextSize(70);
 		//drawView.getCanvas().drawColor(Color.WHITE);
 		drawView.getCanvas().drawText(Double.toString(execTime), 100.0F, 100.0F, paint);
 		drawView.invalidate();
+	}
+
+	private static String pointsToString(List<Entry<Double, Point2D>> points) {
+		StringBuilder sb = new StringBuilder();
+		for (Entry<Double, Point2D> entry : points) {
+			sb.append(entry.getKey() + " " + entry.getValue().getX() + " " + entry.getValue().getY() + "\n");
+		}
+		return sb.toString();
 	}
 
 }
