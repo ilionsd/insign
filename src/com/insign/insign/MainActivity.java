@@ -10,6 +10,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import android.widget.TextView;
+import com.insign.dinamic_curves.matching.matcher.SignatureMatcher;
+import com.insign.dinamic_curves.matching.matcher.SignatureMatching;
 import com.insign.dinamic_curves.points.SignaturePoint;
 import com.insign.utils.Entry;
 import com.insign.utils.EntryWrapper;
@@ -22,9 +24,10 @@ import com.insign.common.function.Point2D;
 import com.insign.dinamic_curves.Signature;
 import com.insign.dinamic_curves.SignatureUtils;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Created by ilion on 06.02.2015.
@@ -36,6 +39,9 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 	DrawView drawView;
 	Paint paint = new Paint();
 	List<Entry<Double, Point2D>> points;
+	List<Entry<Double, Point2D>> referencePoints = null;
+	Signature referenceSignature = null;
+	SignatureMatcher signatureMatcher = new SignatureMatcher();
 	long t0 = 0;
 
 
@@ -49,7 +55,28 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 		drawView = (DrawView)findViewById(R.id.canvas);
 		view.setOnTouchListener(this);
 
+		referencePoints = getReferencePoints(R.raw.signature_point_grid_1);
+		referenceSignature = buildSignature(referencePoints);
+		signatureMatcher.setReference(referenceSignature);
 		//initialize();
+	}
+
+	private List<Entry<Double, Point2D>> getReferencePoints(int rawResId) {
+		InputStream is = getResources().openRawResource(rawResId);
+		Scanner scanner = new Scanner(is);
+		scanner.useDelimiter(" |\n");
+		List<Entry<Double, Point2D>> points = new ArrayList<Entry<Double, Point2D>>();
+		while (scanner.hasNextLine()) {
+			String next = scanner.next();
+			double t = Double.parseDouble(next);
+			next = scanner.next();
+			double x = Double.parseDouble(next);
+			next = scanner.next();
+			double y = Double.parseDouble(next);
+			Entry<Double, Point2D> entry = new EntryWrapper<Double, Point2D>(t, new Point2D(x, y));
+			points.add(entry);
+		}
+		return points;
 	}
 
 	@Override
@@ -133,13 +160,11 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 
 	private void moveEventActionUp() {
 		long start = System.currentTimeMillis();
-		CubicSplineParametricCurve curve = Interpolation.ParametricCurves.bySmoothingSpline(points, 0.5);
-		NaturalCubicSplineParametricCurve naturalCurve = NaturalCubicSplineParametricCurve.fromCurve(curve);
-		Signature signature = SignatureUtils.createFromCurve(naturalCurve);
+		Signature signature = buildSignature(points);
 		long execTime = System.currentTimeMillis() - start;
 
-		drawCurve(curve, 1, Color.RED);
-		drawCurve(naturalCurve, 1, Color.GREEN);
+		SignatureMatching matching = signatureMatcher.match(signature);
+
 		drawSkeleton(signature, Color.BLUE);
 		paint.setColor(Color.RED);
 		paint.setTextSize(70);
@@ -154,6 +179,13 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 			sb.append(entry.getKey() + " " + entry.getValue().getX() + " " + entry.getValue().getY() + "\n");
 		}
 		return sb.toString();
+	}
+
+	private Signature buildSignature(List<Entry<Double, Point2D>> points) {
+		CubicSplineParametricCurve curve = Interpolation.ParametricCurves.bySmoothingSpline(points, 0.5);
+		NaturalCubicSplineParametricCurve naturalCurve = NaturalCubicSplineParametricCurve.fromCurve(curve);
+		Signature signature = SignatureUtils.createFromCurve(naturalCurve);
+		return signature;
 	}
 
 }
