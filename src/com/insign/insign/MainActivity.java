@@ -182,10 +182,33 @@ public class MainActivity extends Activity implements View.OnTouchListener{
 	}
 
 	private Signature buildSignature(List<Entry<Double, Point2D>> points) {
-		CubicSplineParametricCurve curve = Interpolation.ParametricCurves.bySmoothingSpline(points, 0.5);
+		List<Entry<Double, Point2D>> scaledPoints = scale(points);
+		CubicSplineParametricCurve curve = Interpolation.ParametricCurves.bySmoothingSpline(scaledPoints, 0.5);
 		NaturalCubicSplineParametricCurve naturalCurve = NaturalCubicSplineParametricCurve.fromCurve(curve);
 		Signature signature = SignatureUtils.createFromCurve(naturalCurve);
 		return signature;
+	}
+
+	private List<Entry<Double, Point2D>> scale(List<Entry<Double, Point2D>> points) {
+		double minX = Double.MAX_VALUE,
+				minY = Double.MAX_VALUE,
+				maxX = 0,
+				maxY = 0;
+		for (Entry<Double, Point2D> entry : points) {
+			minX = Math.min(minX, entry.getValue().getX());
+			minY = Math.min(minY, entry.getValue().getY());
+			maxX = Math.max(maxX, entry.getValue().getX());
+			maxY = Math.max(maxY, entry.getValue().getY());
+		}
+		double scaleCoefficient = Math.max(maxX - minX, maxY - minY);
+		List<Entry<Double, Point2D>> scaled = new ArrayList<Entry<Double, Point2D>>();
+		for (Entry<Double, Point2D> entry : points) {
+			double scaledX = (entry.getValue().getX() - minX) / scaleCoefficient;
+			double scaledY = (entry.getValue().getY() - minY) / scaleCoefficient;
+			Entry<Double, Point2D> scaledEntry = new EntryWrapper<Double, Point2D>(entry.getKey(), new Point2D(scaledX, scaledY));
+			scaled.add(scaledEntry);
+		}
+		return scaled;
 	}
 
 }
